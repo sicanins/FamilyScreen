@@ -12,6 +12,7 @@ import android.provider.ContactsContract.CommonDataKinds
 import android.provider.ContactsContract.Contacts
 import android.provider.ContactsContract.Data
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import org.fossify.calendar.R
 import org.fossify.calendar.adapters.EventListAdapter
@@ -239,6 +240,13 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
         addImportIdsToTasks {
             refreshViewPager()
         }
+
+        val decorView = window.decorView
+        decorView.systemUiVisibility = (
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            )
     }
 
     override fun onResume() {
@@ -1398,6 +1406,17 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
     private fun checkWhatsNewDialog() {
         arrayListOf<Release>().apply {
             checkWhatsNew(this, org.fossify.calendar.BuildConfig.VERSION_CODE)
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                )
         }
     }
 }
