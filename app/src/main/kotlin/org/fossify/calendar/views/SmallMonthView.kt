@@ -78,7 +78,7 @@ class SmallMonthView(context: Context, attrs: AttributeSet, defStyle: Int) : Vie
             dayWidth = if (isLandscape) {
                 width / 9f
             } else {
-                width / 7f
+                width / 8f
             }
         }
 
