@@ -1,6 +1,7 @@
 package org.fossify.calendar.activities
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.graphics.drawable.ColorDrawable
@@ -13,6 +14,7 @@ import android.provider.ContactsContract.Contacts
 import android.provider.ContactsContract.Data
 import android.view.MenuItem
 import android.view.View
+import android.webkit.WebViewClient
 import android.widget.Toast
 import org.fossify.calendar.R
 import org.fossify.calendar.adapters.EventListAdapter
@@ -136,6 +138,7 @@ import org.fossify.commons.views.MyLinearLayoutManager
 import org.fossify.commons.views.MyRecyclerView
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -147,6 +150,8 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
     private var shouldGoToTodayBeVisible = false
     private var goToTodayButton: MenuItem? = null
     private var currentFragments = ArrayList<MyFragmentHolder>()
+
+    private var webView = null;
 
     private var mStoredTextColor = 0
     private var mStoredBackgroundColor = 0
@@ -247,6 +252,31 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
                 or View.SYSTEM_UI_FLAG_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             )
+
+        initWebView();
+    }
+
+    fun readAssetFile(context: Context, fileName: String): String {
+        return try {
+            val inputStream = context.assets.open(fileName)
+            val size = inputStream.available()
+            val buffer = ByteArray(size)
+            inputStream.read(buffer)
+            inputStream.close()
+            String(buffer, Charsets.UTF_8)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            ""
+        }
+    }
+
+    fun initWebView()
+    {
+        binding.myMVVView.webViewClient = WebViewClient();
+        binding.myMVVView.settings.javaScriptEnabled = true;
+        var html = readAssetFile(this, "mvv.html");
+        //binding.myMVVView.loadData(html, "text/html", "UTF-8");
+        binding.myMVVView.loadDataWithBaseURL("https://www.mvv-muenchen.de", html, "text/html", "UTF-8", null);
     }
 
     override fun onResume() {
