@@ -1,5 +1,6 @@
 [versions]
 #jetbrains
+geckoviewVersion = "123.0.0"
 kotlin = "1.9.25"
 #KSP
 ksp = "1.9.25-1.0.20"
@@ -10,6 +11,8 @@ multidex = "2.0.1"
 print = "1.0.0"
 constraintlayout = "2.2.0"
 swiperefreshlayout = "1.1.0"
+#GeckoView
+geckoview = "123.0.0"
 #Room
 room = "2.6.1"
 #Fossify
@@ -32,12 +35,15 @@ androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayo
 androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
 androidx-print = { module = "androidx.print:print", version.ref = "print" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
+#GeckoView
+geckoview = { module = "org.mozilla.geckoview:geckoview-stable", version.ref = "geckoview" }
 #Room
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 #Fossify
 fossify-commons = { module = "org.fossify:commons", version.ref = "commons" }
+geckoview-stable = { module = "org.mozilla.geckoview:geckoview-stable", version.ref = "geckoviewVersion" }
 [bundles]
 room = [
     "androidx-room-ktx",

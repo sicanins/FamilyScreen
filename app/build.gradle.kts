@@ -10,6 +10,9 @@ plugins {
     alias(libs.plugins.detekt)
 }
 
+val geckoviewChannel = "stable" // or "beta", "nightly"
+val geckoviewVersion = "123.0.0" // replace with the desired version
+
 val keystorePropertiesFile: File = rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
@@ -113,6 +116,9 @@ detekt {
 }
 
 dependencies {
+    //implementation(libs.geckoview.stable)123.0.0
+    implementation("org.mozilla.geckoview:geckoview:123.0.20240304104836")
+    //implementation("org.mozilla.geckoview:geckoview-nightly:70.0.20190712095934")
     implementation(libs.fossify.commons)
     implementation(libs.androidx.multidex)
     implementation(libs.androidx.constraintlayout)

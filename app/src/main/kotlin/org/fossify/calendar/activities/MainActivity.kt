@@ -14,7 +14,6 @@ import android.provider.ContactsContract.Contacts
 import android.provider.ContactsContract.Data
 import android.view.MenuItem
 import android.view.View
-import android.webkit.WebViewClient
 import android.widget.Toast
 import org.fossify.calendar.R
 import org.fossify.calendar.adapters.EventListAdapter
@@ -24,111 +23,15 @@ import org.fossify.calendar.databinding.ActivityMainBinding
 import org.fossify.calendar.dialogs.SelectEventTypesDialog
 import org.fossify.calendar.dialogs.SelectHolidayTypesDialog
 import org.fossify.calendar.dialogs.SetRemindersDialog
-import org.fossify.calendar.extensions.addImportIdsToTasks
-import org.fossify.calendar.extensions.calDAVHelper
-import org.fossify.calendar.extensions.config
-import org.fossify.calendar.extensions.eventsDB
-import org.fossify.calendar.extensions.eventsHelper
-import org.fossify.calendar.extensions.getEventListItems
-import org.fossify.calendar.extensions.getFirstDayOfWeek
-import org.fossify.calendar.extensions.launchNewEventIntent
-import org.fossify.calendar.extensions.launchNewTaskIntent
-import org.fossify.calendar.extensions.seconds
-import org.fossify.calendar.extensions.tryImportEventsFromFile
-import org.fossify.calendar.extensions.updateWidgets
-import org.fossify.calendar.fragments.DayFragmentsHolder
-import org.fossify.calendar.fragments.EventListFragment
-import org.fossify.calendar.fragments.MonthDayFragmentsHolder
-import org.fossify.calendar.fragments.MonthFragmentsHolder
-import org.fossify.calendar.fragments.MyFragmentHolder
-import org.fossify.calendar.fragments.WeekFragmentsHolder
-import org.fossify.calendar.fragments.YearFragmentsHolder
-import org.fossify.calendar.helpers.ANNIVERSARY_EVENT
-import org.fossify.calendar.helpers.BIRTHDAY_EVENT
-import org.fossify.calendar.helpers.DAILY_VIEW
-import org.fossify.calendar.helpers.DAY_CODE
-import org.fossify.calendar.helpers.EVENTS_LIST_VIEW
-import org.fossify.calendar.helpers.EVENT_ID
-import org.fossify.calendar.helpers.EVENT_OCCURRENCE_TS
-import org.fossify.calendar.helpers.FETCH_INTERVAL
-import org.fossify.calendar.helpers.FLAG_ALL_DAY
-import org.fossify.calendar.helpers.FLAG_MISSING_YEAR
-import org.fossify.calendar.helpers.Formatter
-import org.fossify.calendar.helpers.HOLIDAY_EVENT
-import org.fossify.calendar.helpers.HolidayHelper
-import org.fossify.calendar.helpers.INITIAL_EVENTS
-import org.fossify.calendar.helpers.IS_TASK
-import org.fossify.calendar.helpers.IcsImporter
+import org.fossify.calendar.extensions.*
+import org.fossify.calendar.fragments.*
+import org.fossify.calendar.helpers.*
 import org.fossify.calendar.helpers.IcsImporter.ImportResult
-import org.fossify.calendar.helpers.LAST_VIEW
-import org.fossify.calendar.helpers.MAX_SEARCH_YEAR
-import org.fossify.calendar.helpers.MIN_EVENTS_TRESHOLD
-import org.fossify.calendar.helpers.MONTHLY_DAILY_VIEW
-import org.fossify.calendar.helpers.MONTHLY_VIEW
-import org.fossify.calendar.helpers.OTHER_EVENT
-import org.fossify.calendar.helpers.REPEAT_SAME_DAY
-import org.fossify.calendar.helpers.SHORTCUT_NEW_EVENT
-import org.fossify.calendar.helpers.SHORTCUT_NEW_TASK
-import org.fossify.calendar.helpers.SOURCE_CONTACT_ANNIVERSARY
-import org.fossify.calendar.helpers.SOURCE_CONTACT_BIRTHDAY
-import org.fossify.calendar.helpers.UPDATE_BOTTOM
-import org.fossify.calendar.helpers.UPDATE_TOP
-import org.fossify.calendar.helpers.VIEW_TO_OPEN
-import org.fossify.calendar.helpers.WEEKLY_VIEW
-import org.fossify.calendar.helpers.WEEK_START_DATE_TIME
-import org.fossify.calendar.helpers.YEAR
-import org.fossify.calendar.helpers.YEARLY_VIEW
-import org.fossify.calendar.helpers.YEAR_TO_OPEN
-import org.fossify.calendar.helpers.getActivityToOpen
 import org.fossify.calendar.jobs.CalDAVUpdateListener
-import org.fossify.calendar.models.Event
-import org.fossify.calendar.models.HolidayInfo
-import org.fossify.calendar.models.ListEvent
-import org.fossify.calendar.models.ListItem
-import org.fossify.calendar.models.ListSectionDay
+import org.fossify.calendar.models.*
 import org.fossify.commons.dialogs.RadioGroupDialog
-import org.fossify.commons.extensions.adjustAlpha
-import org.fossify.commons.extensions.appLaunched
-import org.fossify.commons.extensions.applyColorFilter
-import org.fossify.commons.extensions.areDigitsOnly
-import org.fossify.commons.extensions.beGone
-import org.fossify.commons.extensions.beGoneIf
-import org.fossify.commons.extensions.beVisible
-import org.fossify.commons.extensions.beVisibleIf
-import org.fossify.commons.extensions.checkWhatsNew
-import org.fossify.commons.extensions.convertToBitmap
-import org.fossify.commons.extensions.fadeIn
-import org.fossify.commons.extensions.fadeOut
-import org.fossify.commons.extensions.getColoredDrawableWithColor
-import org.fossify.commons.extensions.getContrastColor
-import org.fossify.commons.extensions.getIntValue
-import org.fossify.commons.extensions.getLongValue
-import org.fossify.commons.extensions.getMyContactsCursor
-import org.fossify.commons.extensions.getProperBackgroundColor
-import org.fossify.commons.extensions.getProperPrimaryColor
-import org.fossify.commons.extensions.getProperTextColor
-import org.fossify.commons.extensions.getStringValue
-import org.fossify.commons.extensions.hasPermission
-import org.fossify.commons.extensions.hideKeyboard
-import org.fossify.commons.extensions.isGone
-import org.fossify.commons.extensions.isVisible
-import org.fossify.commons.extensions.launchMoreAppsFromUsIntent
-import org.fossify.commons.extensions.queryCursor
-import org.fossify.commons.extensions.shortcutManager
-import org.fossify.commons.extensions.showErrorToast
-import org.fossify.commons.extensions.toast
-import org.fossify.commons.extensions.updateTextColors
-import org.fossify.commons.extensions.viewBinding
-import org.fossify.commons.helpers.LICENSE_JODA
-import org.fossify.commons.helpers.MyContactsContentProvider
-import org.fossify.commons.helpers.PERMISSION_READ_CALENDAR
-import org.fossify.commons.helpers.PERMISSION_READ_CONTACTS
-import org.fossify.commons.helpers.PERMISSION_WRITE_CALENDAR
-import org.fossify.commons.helpers.ensureBackgroundThread
-import org.fossify.commons.helpers.getDateFormats
-import org.fossify.commons.helpers.getDateFormatsWithYear
-import org.fossify.commons.helpers.isNougatMR1Plus
-import org.fossify.commons.helpers.isNougatPlus
+import org.fossify.commons.extensions.*
+import org.fossify.commons.helpers.*
 import org.fossify.commons.interfaces.RefreshRecyclerViewListener
 import org.fossify.commons.models.FAQItem
 import org.fossify.commons.models.RadioItem
@@ -138,9 +41,13 @@ import org.fossify.commons.views.MyLinearLayoutManager
 import org.fossify.commons.views.MyRecyclerView
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.mozilla.geckoview.GeckoRuntime
+import org.mozilla.geckoview.GeckoSession
+import org.mozilla.geckoview.GeckoView
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Locale
+
 
 class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
 
@@ -151,7 +58,11 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
     private var goToTodayButton: MenuItem? = null
     private var currentFragments = ArrayList<MyFragmentHolder>()
 
-    private var webView = null;
+    private var geckoViewMVV: GeckoView? = null
+    private var geckoSessionMVV: GeckoSession? = null
+
+    private var geckoViewSmarthome: GeckoView? = null
+    private var geckoSessionSmarthome: GeckoSession? = null
 
     private var mStoredTextColor = 0
     private var mStoredBackgroundColor = 0
@@ -253,7 +164,25 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
                 or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             )
 
-        initWebView();
+        val runtime = GeckoRuntime.create(this)
+
+        // initialize geckoview for the MVV schedule
+        geckoViewMVV = binding.MVVView
+        geckoSessionMVV = GeckoSession()
+        geckoSessionMVV?.open(runtime)
+        geckoSessionMVV?.settings?.allowJavascript = true
+
+        if (geckoSessionMVV is GeckoSession)
+            geckoViewMVV?.setSession(geckoSessionMVV!!)
+
+        // initialize geckoview for the smarthome control
+        geckoViewSmarthome = binding.smarthomeView
+        geckoSessionSmarthome = GeckoSession()
+        geckoSessionSmarthome?.open(runtime)
+        geckoSessionSmarthome?.settings?.allowJavascript = true
+
+        if (geckoSessionSmarthome is GeckoSession)
+            geckoViewSmarthome?.setSession(geckoSessionSmarthome!!)
     }
 
     fun readAssetFile(context: Context, fileName: String): String {
@@ -270,13 +199,14 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
         }
     }
 
-    fun initWebView()
-    {
-        binding.myMVVView.webViewClient = WebViewClient();
-        binding.myMVVView.settings.javaScriptEnabled = true;
-        var html = readAssetFile(this, "mvv.html");
-        //binding.myMVVView.loadData(html, "text/html", "UTF-8");
-        binding.myMVVView.loadDataWithBaseURL("https://www.mvv-muenchen.de", html, "text/html", "UTF-8", null);
+    fun loadMVVPage() {
+
+        //geckoSessionMVV?.loadUri("https://www.google.de")
+
+        val html = readAssetFile(this, "mvv.html")
+        geckoSessionMVV?.load(GeckoSession.Loader().data(html, "text/html"))
+
+        geckoSessionSmarthome?.loadUri("http://iob:8082/habpanel/index.html#/view/Home");
     }
 
     override fun onResume() {
@@ -326,6 +256,8 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
             }
         }
 
+        loadMVVPage()
+
         setupQuickFilter()
 
         if (config.caldavSync) {
@@ -343,6 +275,15 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
         if (!isChangingConfigurations) {
             EventsDatabase.destroyInstance()
             stopCalDAVUpdateListener()
+            geckoViewMVV?.apply {
+                session?.close()
+                releaseSession()
+            }
+
+            geckoViewSmarthome?.apply {
+                session?.close()
+                releaseSession()
+            }
         }
     }
 
