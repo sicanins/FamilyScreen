@@ -58,11 +58,16 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
     private var goToTodayButton: MenuItem? = null
     private var currentFragments = ArrayList<MyFragmentHolder>()
 
-    private var geckoViewMVV: GeckoView? = null
-    private var geckoSessionMVV: GeckoSession? = null
+//    private var geckoViewMVV: GeckoView? = null
+//    private var geckoSessionMVV: GeckoSession? = null
 
-    private var geckoViewSmarthome: GeckoView? = null
-    private var geckoSessionSmarthome: GeckoSession? = null
+    private companion object { private var geckoRuntime: GeckoRuntime? = null }
+
+    private var geckoViewVisTop: GeckoView? = null
+    private var geckoSessionVisTop: GeckoSession? = null
+
+    private var geckoViewVisBottom: GeckoView? = null
+    private var geckoSessionVisBottom: GeckoSession? = null
 
     private var mStoredTextColor = 0
     private var mStoredBackgroundColor = 0
@@ -164,25 +169,36 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
                 or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             )
 
-        val runtime = GeckoRuntime.create(this)
+        geckoRuntime = GeckoRuntime.getDefault(this)
 
-        // initialize geckoview for the MVV schedule
-        geckoViewMVV = binding.MVVView
-        geckoSessionMVV = GeckoSession()
-        geckoSessionMVV?.open(runtime)
-        geckoSessionMVV?.settings?.allowJavascript = true
+//        // initialize geckoview for the MVV schedule
+//        geckoViewMVV = binding.MVVView
+//        geckoSessionMVV = GeckoSession()
+//        geckoSessionMVV?.open(runtime)
+//        geckoSessionMVV?.settings?.allowJavascript = true
+//
+//        if (geckoSessionMVV is GeckoSession)
+//            geckoViewMVV?.setSession(geckoSessionMVV!!)
 
-        if (geckoSessionMVV is GeckoSession)
-            geckoViewMVV?.setSession(geckoSessionMVV!!)
+        var runtime : GeckoRuntime = geckoRuntime!!;
 
-        // initialize geckoview for the smarthome control
-        geckoViewSmarthome = binding.smarthomeView
-        geckoSessionSmarthome = GeckoSession()
-        geckoSessionSmarthome?.open(runtime)
-        geckoSessionSmarthome?.settings?.allowJavascript = true
+        // initialize geckoview for the iobroker vis top
+        geckoViewVisTop = binding.visTopView
+        geckoSessionVisTop = GeckoSession()
+        geckoSessionVisTop?.open(runtime)
+        geckoSessionVisTop?.settings?.allowJavascript = true
 
-        if (geckoSessionSmarthome is GeckoSession)
-            geckoViewSmarthome?.setSession(geckoSessionSmarthome!!)
+        if (geckoSessionVisTop is GeckoSession)
+            geckoViewVisTop?.setSession(geckoSessionVisTop!!)
+
+    // initialize geckoview for the iobroker vis bottom
+        geckoViewVisBottom = binding.visBottomView
+        geckoSessionVisBottom = GeckoSession()
+        geckoSessionVisBottom?.open(runtime)
+        geckoSessionVisBottom?.settings?.allowJavascript = true
+
+        if (geckoSessionVisBottom is GeckoSession)
+            geckoViewVisBottom?.setSession(geckoSessionVisBottom!!)
     }
 
     fun readAssetFile(context: Context, fileName: String): String {
@@ -203,10 +219,15 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
 
         //geckoSessionMVV?.loadUri("https://www.google.de")
 
-        val html = readAssetFile(this, "mvv.html")
-        geckoSessionMVV?.load(GeckoSession.Loader().data(html, "text/html"))
+//        val html = readAssetFile(this, "mvv.html")
+//        geckoSessionMVV?.load(GeckoSession.Loader().data(html, "text/html"))
 
-        geckoSessionSmarthome?.loadUri("http://iob:8082/habpanel/index.html#/view/Home");
+        ensureBackgroundThread {
+            geckoSessionVisTop?.loadUri("http://iob:8082/vis-2/index.html#FamilyScreenTop");
+        }
+        ensureBackgroundThread {
+            geckoSessionVisBottom?.loadUri("http://iob:8082/vis-2/index.html#FamilyScreenBottom");
+        }
     }
 
     override fun onResume() {
@@ -275,12 +296,17 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
         if (!isChangingConfigurations) {
             EventsDatabase.destroyInstance()
             stopCalDAVUpdateListener()
-            geckoViewMVV?.apply {
+//            geckoViewMVV?.apply {
+//                session?.close()
+//                releaseSession()
+//            }
+
+            geckoViewVisTop?.apply {
                 session?.close()
                 releaseSession()
             }
 
-            geckoViewSmarthome?.apply {
+            geckoViewVisBottom?.apply {
                 session?.close()
                 releaseSession()
             }
