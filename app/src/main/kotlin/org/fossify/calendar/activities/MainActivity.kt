@@ -280,12 +280,12 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
     override fun onPause() {
         super.onPause()
         storeStateVariables()
-        binding.visTopView?.releaseSession()
-        binding.visBottomView?.releaseSession()
-        geckoSessionVisTop?.close()
-        geckoSessionVisTop = null
-        geckoSessionVisBottom?.close()
-        geckoSessionVisBottom = null
+//        binding.visTopView?.releaseSession()
+//        binding.visBottomView?.releaseSession()
+//        geckoSessionVisTop?.close()
+//        geckoSessionVisTop = null
+//        geckoSessionVisBottom?.close()
+//        geckoSessionVisBottom = null
 //        if (geckoRuntime != null) {
 //            geckoRuntime!!.shutdown()
 //            geckoRuntime = null
