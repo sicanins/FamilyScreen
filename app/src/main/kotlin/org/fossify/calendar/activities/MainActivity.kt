@@ -57,17 +57,14 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
     private var shouldGoToTodayBeVisible = false
     private var goToTodayButton: MenuItem? = null
     private var currentFragments = ArrayList<MyFragmentHolder>()
-
-//    private var geckoViewMVV: GeckoView? = null
-//    private var geckoSessionMVV: GeckoSession? = null
-
-    private companion object { private var geckoRuntime: GeckoRuntime? = null }
-
-    private var geckoViewVisTop: GeckoView? = null
-    private var geckoSessionVisTop: GeckoSession? = null
-
-    private var geckoViewVisBottom: GeckoView? = null
-    private var geckoSessionVisBottom: GeckoSession? = null
+    private companion object {
+        private var geckoRuntime: GeckoRuntime? = null
+        private var geckoSessionVisBottom: GeckoSession? = null
+        private var geckoSessionVisTop: GeckoSession? = null
+    }
+//    private var geckoRuntime: GeckoRuntime? = null
+//    private var geckoSessionVisBottom: GeckoSession? = null
+//    private var geckoSessionVisTop: GeckoSession? = null
 
     private var mStoredTextColor = 0
     private var mStoredBackgroundColor = 0
@@ -169,36 +166,35 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
                 or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             )
 
-        geckoRuntime = GeckoRuntime.getDefault(this)
+        if (geckoRuntime == null)
+            geckoRuntime = GeckoRuntime.create(this);
 
-//        // initialize geckoview for the MVV schedule
-//        geckoViewMVV = binding.MVVView
-//        geckoSessionMVV = GeckoSession()
-//        geckoSessionMVV?.open(runtime)
-//        geckoSessionMVV?.settings?.allowJavascript = true
-//
-//        if (geckoSessionMVV is GeckoSession)
-//            geckoViewMVV?.setSession(geckoSessionMVV!!)
+        if (geckoSessionVisTop == null)
+        {
+            geckoSessionVisTop = GeckoSession()
+            geckoSessionVisTop?.open(geckoRuntime!!)
+            geckoSessionVisTop?.settings?.allowJavascript = true
 
-        var runtime : GeckoRuntime = geckoRuntime!!;
+            ensureBackgroundThread {
+                geckoSessionVisTop?.loadUri("http://iob:8082/vis-2/index.html#FamilyScreenTop");
+            }
+        }
+        binding.visTopView?.releaseSession()
+        binding.visTopView?.setSession(geckoSessionVisTop!!)
 
-        // initialize geckoview for the iobroker vis top
-        geckoViewVisTop = binding.visTopView
-        geckoSessionVisTop = GeckoSession()
-        geckoSessionVisTop?.open(runtime)
-        geckoSessionVisTop?.settings?.allowJavascript = true
+        if (geckoSessionVisBottom == null)
+        {
+            geckoSessionVisBottom = GeckoSession()
+            geckoSessionVisBottom?.open(geckoRuntime!!)
+            geckoSessionVisBottom?.settings?.allowJavascript = true
 
-        if (geckoSessionVisTop is GeckoSession)
-            geckoViewVisTop?.setSession(geckoSessionVisTop!!)
+            ensureBackgroundThread {
+                geckoSessionVisBottom?.loadUri("http://iob:8082/vis-2/index.html#FamilyScreenBottom");
+            }
+        }
 
-    // initialize geckoview for the iobroker vis bottom
-        geckoViewVisBottom = binding.visBottomView
-        geckoSessionVisBottom = GeckoSession()
-        geckoSessionVisBottom?.open(runtime)
-        geckoSessionVisBottom?.settings?.allowJavascript = true
-
-        if (geckoSessionVisBottom is GeckoSession)
-            geckoViewVisBottom?.setSession(geckoSessionVisBottom!!)
+        binding.visBottomView?.releaseSession();
+        binding.visBottomView?.setSession(geckoSessionVisBottom!!)
     }
 
     fun readAssetFile(context: Context, fileName: String): String {
@@ -217,17 +213,12 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
 
     fun loadMVVPage() {
 
-        //geckoSessionMVV?.loadUri("https://www.google.de")
-
-//        val html = readAssetFile(this, "mvv.html")
-//        geckoSessionMVV?.load(GeckoSession.Loader().data(html, "text/html"))
-
-        ensureBackgroundThread {
-            geckoSessionVisTop?.loadUri("http://iob:8082/vis-2/index.html#FamilyScreenTop");
-        }
-        ensureBackgroundThread {
-            geckoSessionVisBottom?.loadUri("http://iob:8082/vis-2/index.html#FamilyScreenBottom");
-        }
+//        ensureBackgroundThread {
+//            geckoSessionVisTop?.loadUri("http://iob:8082/vis-2/index.html#FamilyScreenTop");
+//        }
+//        ensureBackgroundThread {
+//            geckoSessionVisBottom?.loadUri("http://iob:8082/vis-2/index.html#FamilyScreenBottom");
+//        }
     }
 
     override fun onResume() {
@@ -289,28 +280,34 @@ class MainActivity : SimpleActivity(), RefreshRecyclerViewListener {
     override fun onPause() {
         super.onPause()
         storeStateVariables()
+        binding.visTopView?.releaseSession()
+        binding.visBottomView?.releaseSession()
+        geckoSessionVisTop?.close()
+        geckoSessionVisTop = null
+        geckoSessionVisBottom?.close()
+        geckoSessionVisBottom = null
+//        if (geckoRuntime != null) {
+//            geckoRuntime!!.shutdown()
+//            geckoRuntime = null
+//        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (!isChangingConfigurations) {
+        //if (!isChangingConfigurations) {
             EventsDatabase.destroyInstance()
             stopCalDAVUpdateListener()
-//            geckoViewMVV?.apply {
-//                session?.close()
-//                releaseSession()
+            binding.visTopView?.releaseSession()
+            binding.visBottomView?.releaseSession()
+            geckoSessionVisTop?.close()
+            geckoSessionVisTop = null
+            geckoSessionVisBottom?.close()
+            geckoSessionVisBottom = null
+//            if (geckoRuntime != null ) {
+//                geckoRuntime!!.shutdown()
+//                geckoRuntime = null
 //            }
-
-            geckoViewVisTop?.apply {
-                session?.close()
-                releaseSession()
-            }
-
-            geckoViewVisBottom?.apply {
-                session?.close()
-                releaseSession()
-            }
-        }
+        //}
     }
 
     fun refreshMenuItems() {

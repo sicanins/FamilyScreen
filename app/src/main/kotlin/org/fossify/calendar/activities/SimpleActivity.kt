@@ -76,6 +76,11 @@ open class SimpleActivity : BaseSimpleActivity() {
         contentResolver.unregisterContentObserver(calDAVSyncObserver)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterObserver();
+    }
+
     protected fun handleNotificationAvailability(callback: () -> Unit) {
         handleNotificationPermission { granted ->
             if (granted) {
